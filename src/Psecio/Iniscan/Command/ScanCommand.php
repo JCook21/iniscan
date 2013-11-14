@@ -16,7 +16,8 @@ class ScanCommand extends Command
                 new InputOption('path', 'path', InputOption::VALUE_OPTIONAL, 'Path to the php.ini'),
                 new InputOption('fail-only', 'fail-only', InputOption::VALUE_NONE, 'Show only failing checks'),
                 new InputOption('format', 'format', InputOption::VALUE_OPTIONAL, 'Output format'),
-                new InputOption('context', 'context', InputOption::VALUE_OPTIONAL, 'Environment context (ex. "prod")')
+                new InputOption('context', 'context', InputOption::VALUE_OPTIONAL, 'Environment context (ex. "prod")'),
+                new InputOption('threshold', 'threshold', InputOption::VALUE_OPTIONAL, 'Allows to show only things at or above this theshold')
             ))
             ->setHelp(
                 'Execute the scan on the php.ini for security best practices'
@@ -36,6 +37,7 @@ class ScanCommand extends Command
         $failOnly = $input->getOption('fail-only');
         $format = $input->getOption('format');
         $context = $input->getOption('context');
+        $threshold = $input->getOption('threshold');
 
         $context = ($context !== null)
             ? explode(', ', $context) : array();
@@ -46,19 +48,21 @@ class ScanCommand extends Command
         }
 
         if (!is_file($path)) {
-            throw new \Exception('Path is null or not not accessible: "'.$path.'"');
+            throw new \Exception('Path is null or not accessible: "'.$path.'"');
         }
 
-        $scan = new \Psecio\Iniscan\Scan($path, $context);
+        $scan = new \Psecio\Iniscan\Scan($path, $context, $threshold);
         $results = $scan->execute();
+        $deprecated = $scan->getMarked();
 
         $options = array(
             'path' => $path,
-            'failOnly' => $failOnly
+            'failOnly' => $failOnly,
+            'deprecated' => $deprecated
         );
 
         $format = ($format === null) ? 'console' : $format;
-        $formatClass = "\\Psecio\\Iniscan\\Command\\Scan\\Output\\".ucwords(strtolower($format));
+        $formatClass = "\\Psecio\\Iniscan\\Command\\ScanCommand\\Output\\".ucwords(strtolower($format));
         if (!class_exists($formatClass)) {
             throw new \Psecio\Iniscan\Exceptions\FormatNotFoundException('Output format "'.$format.'" not found');
         }

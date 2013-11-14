@@ -5,10 +5,20 @@
 				"Session": [
 					{
 						"name": "Cookies for sessions",
-						"description": "Must use cookies to manage sessions",
+						"description": "Accepts cookies to manage sessions",
 						"level": "ERROR",
 						"test": {
 							"key": "session.use_cookies",
+							"operation": "equals",
+							"value": "1"
+						}
+					},
+					{
+						"name": "Only cookies for sessions",
+						"description": "Must use cookies to manage sessions, don't accept session-ids in a link",
+						"level": "ERROR",
+						"test": {
+							"key": "session.use_only_cookies",
 							"operation": "equals",
 							"value": "1"
 						}
@@ -47,12 +57,22 @@
 							"operation": "equals",
 							"value": "0"
 						}
+					},
+					{
+						"name": "Cookie set to secure connection",
+						"description": "Cookie secure specifies whether cookies should only be sent over secure connections.",
+						"level": "ERROR",
+						"test": {
+							"key": "session.cookie_secure",
+							"operation": "equals",
+							"value": "1"
+						}
 					}
 				],
 				"PHP": [
 					{
 						"name": "Disallow remote file open",
-						"description": "Do not allow the opening of remote file resoources ('Off' recommended)",
+						"description": "Do not allow the opening of remote file resources ('Off' recommended)",
 						"level": "ERROR",
 						"test": {
 							"key": "allow_url_fopen",
@@ -78,6 +98,17 @@
 							"key": "display_errors",
 							"operation": "notequals",
 							"value": "0",
+							"context": ["prod"]
+						}
+					},
+					{
+						"name": "Log errors",
+						"description": "Log errors in production ('On' recommended)",
+						"level": "WARNING",
+						"test": {
+							"key": "log_errors",
+							"operation": "equals",
+							"value": "1",
 							"context": ["prod"]
 						}
 					},
@@ -112,6 +143,16 @@
 						}
 					},
 					{
+						"name": "Disable magic quotes at runtime",
+						"description": "Magic quotes should be disabled at runtime in addition to being off for incoming data",
+						"level": "ERROR",
+						"test": {
+							"key": "magic_quotes_runtime",
+							"operation": "equals",
+							"value": "0"
+						}
+					},
+					{
 						"name": "Maximum post size too large",
 						"description": "A too large value for the maximum post size could allow for DoS against your application",
 						"level": "WARNING",
@@ -125,6 +166,93 @@
 							"key": "safe_mode",
 							"operation": "equals",
 							"value": "0"
+						}
+					},
+					{
+						"name": "Register long arrays is disabled",
+						"description": "Registering long arrays turns on the HTTP_*_VARS (Recommended Off)",
+						"level": "WARNING",
+						"test": {
+							"key": "register_long_arrays",
+							"operation": "equals",
+							"value": "0"
+						}
+					},
+					{
+						"name": "Maximum input variables",
+						"description": "A maximum number of input variables should be defined to prevent performance issues",
+						"level": "WARNING",
+						"test": {
+							"key": "max_input_vars",
+							"operation": "isset"
+						}
+					},
+					{
+						"name": "Do not display startup errors",
+						"description": "Showing startup errors could provide extra information to potential attackers",
+						"level": "WARNING",
+						"test": {
+							"key": "display_startup_errors",
+							"operation": "equals",
+							"value": "0"
+						}
+					},
+					{
+						"name": "Restrict PHP's file system access (basedir)",
+						"description": "Restricting PHP's access to the file system to a certain directory prevents file-based attacks in unauthorized areas.",
+						"level": "WARNING",
+						"test": {
+							"key": "open_basedir",
+							"operation": "isset"
+						}
+					},
+					{
+						"name": "Ensure proper error output",
+						"description": "Error reporting should be different based on context, off in production",
+						"level": "WARNING",
+						"test": {
+							"key": "error_reporting",
+							"operation": "greater",
+							"value": "0",
+							"context": ["prod"]
+						}
+					},
+					{
+						"name": "Define a reasonable max upload size",
+						"description": "A maximum upload size should be defined to prevent server overload from large requests",
+						"level": "WARNING",
+						"test": {
+							"key": "upload_max_filesize",
+							"operation": "isset"
+						}
+					},
+					{
+						"name": "Reduce max upload size",
+						"description": "The max upload size should not be too high, to prevent server overload from large requests",
+						"level": "WARNING",
+						"test": {
+							"key": "upload_max_filesize",
+							"operation": "smaller",
+							"value": "2M"
+						}
+					},
+					{
+						"name": "Define a reasonable memory limit",
+						"description": "A memory limit should be defined to prevent server overload from large processes",
+						"level": "WARNING",
+						"test": {
+							"key": "memory_limit",
+							"operation": "isset"
+						}
+					},
+					{
+						"name": "Reduce memory limit",
+						"description": "The standard memory limit should not be too high, if you need more memory for a single script you can adjust that during runtime using ini_set()",
+						"level": "WARNING",
+						"test": {
+							"key": "memory_limit",
+							"operation": "smaller",
+							"value": "128M"
 						}
 					}
 				],
@@ -142,7 +270,9 @@
 			"deprecated": {
 				"register_globals": "5.4.0",
 				"magic_quotes_gpc": "5.4.0",
-				"safe_mode": "5.4.0"
+				"safe_mode": "5.4.0",
+				"magic_quotes_runtime": "5.4.0",
+				"register_long_arrays": "5.3.0"
 			}
 		}
 	]

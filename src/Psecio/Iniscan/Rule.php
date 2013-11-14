@@ -78,6 +78,16 @@ class Rule
 	}
 
 	/**
+	 * Set the current "name" value
+	 *
+	 * @param string $name
+	 */
+	public function setName($name)
+	{
+		$this->name = $name;
+	}
+
+	/**
 	 * Set the section the rule belongs to
 	 *
 	 * @param string $section Section name
@@ -108,7 +118,7 @@ class Rule
 	}
 
 	/**
-	 * Set thep pass/fail status for the rule
+	 * Set the pass/fail status for the rule
 	 *
 	 * @param boolean $flag Pass/fail status
 	 */
@@ -249,4 +259,45 @@ class Rule
 		($evalInstance->execute($test->key, $value, $ini) == false)
 			? $this->fail() : $this->pass();
 	}
+
+	/**
+	 * Check that the rule matches the wanted security leve
+	 *
+	 * @param string $wantedLevel The minimum level to display
+	 */
+	public function respectThreshold($wantedLevel) {
+		// If not threshold is given, alway display the rule
+		if (is_null($wantedLevel)) {
+			return true;
+		}
+
+		$currentValue = $this->getLevelNumericalValue($this->level);
+		$wantedValue = $this->getLevelNumericalValue($wantedLevel);
+
+		return  $currentValue >= $wantedValue;
+	}
+
+	/**
+	 * Return a numerical value for the level
+	 *
+	 * @param string $level The level to convert to a number
+	 * @return int A numerical value representing the level
+	 */
+	protected function getLevelNumericalValue($level) {
+		$level = strtolower($level);
+		if (isset($this->levelValues[$level])) {
+			return $this->levelValues[$level];
+		}
+
+		return 0;
+	}
+
+	/**
+	 * The levels and their numerical values
+	 */
+	protected $levelValues = array(
+		'warning' => 10,
+		'error' => 20,
+		'fatal' => 30,
+	);
 }

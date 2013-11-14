@@ -21,6 +21,14 @@ Using Composer:
 
 The only current dependency is the Symfony console.
 
+Additionally, you can install it outside of a project with the `global` functionality Composer provides. From
+any directory you can use:
+
+```
+$ ./composer.phar global require "psecio/iniscan=dev-master"
+$ ~/.composer/vendor/bin/iniscan
+```
+
 *Example usage:*
 
 ```
@@ -66,6 +74,20 @@ The `scan` command will return an exit code based on the results:
 - 0: No errors
 - 1: Failures found
 
+
+###### Scan Level Threshold
+You can request the only scan for rules that are on or above a threshold:
+
+```
+vendor/bin/iniscan scan --path=/path/to/php.ini --threshold=ERROR
+```
+
+There are 3 levels you can use:
+* WARNING
+* ERROR
+* FATAL (No rules uses that level at the moment)
+
+
 ##### Show
 
 The `show` command lists out the contents of your `php.ini` file with a bit of extra formatting.
@@ -90,6 +112,12 @@ By default *iniscan* will output information directly to the console in a human-
 vendor/bin/iniscan show --path=/path/to/php.ini --format=json
 ```
 
+the `list` command also supports JSON output:
+
+```
+vendor/bin/iniscan list --path=/path/to/php.ini --format=json
+```
+
 **NOTE:** Currently, only the `scan` command supports alternate output formats - and only three: console, JSON and XML.
 
 
@@ -101,6 +129,23 @@ The scanner also supports the concept of "contexts" - environments you may be ex
 vendor/bin/iniscan show --path=/path/to/php.ini --context=dev
 ```
 
+#### Deprecated reporting
+
+As the scanner runs, it will compare the configuration key to a list of deprecated items. If the version is at or later than the version defined in the rules, an error will be shown in the output. For example, in the console, you'd see:
+
+```
+WARNING: deprecated configuration items found:
+-> register_globals
+It's recommended that these settings be removed as they will be removed from future PHP versions.
+```
+
+This is default behavior and does not need to be enabled.
+
+
 In this case, we're told it we're running in dev, so anything that specifically mentions "prod" isn't executed.
 
 @author Chris Cornutt <ccornutt@phpdeveloper.org>
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/psecio/iniscan/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+

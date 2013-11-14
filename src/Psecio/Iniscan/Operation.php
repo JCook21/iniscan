@@ -14,7 +14,6 @@ abstract class Operation
 	 * Init the Operation and set the section
 	 *
 	 * @param string $section Section name
-	 * @return type
 	 */
 	public function __construct($section)
 	{
@@ -22,7 +21,7 @@ abstract class Operation
 	}
 
 	/**
-	 * Set the setion name
+	 * Set the section name
 	 *
 	 * @param string $section
 	 * @return \Psecio\Iniscan\Operation instance
@@ -69,7 +68,7 @@ abstract class Operation
 			throw new \InvalidArgumentException('Unknown section '.$section);
 		}
 		if (!array_key_exists($path, $ini[$section])) {
-			throw new Exceptions\PathNotFoundException('Unknown path '.$path.' - is it defined?');
+			return false;
 		}
 		return $ini[$section][$path];
 	}
@@ -82,7 +81,7 @@ abstract class Operation
 	 */
 	public function castValue($value)
 	{
-		if ($value === 'Off' || $value === '' || $value === 0) {
+		if ($value === 'Off' || $value === '' || $value === 0 || $value === '0') {
 			$casted = 0;
 		} elseif ($value === 'On' || $value === '1' || $value === 1) {
 			$casted = 1;
@@ -90,6 +89,27 @@ abstract class Operation
 			$casted = $value;
 		}
 
+		$casted = $this->castPowers($casted);
+
+		return $casted;
+	}
+
+	/**
+	 * Cast the byte values ending with G, M or K to full integer values
+	 *
+	 * @param $value
+	 * @return mixed "Casted" result
+	 */
+	private function castPowers ($casted) {
+		$postfixes = array(
+			'K' => 1024,
+			'M' => 1024 * 1024,
+			'G' => 1024 * 1024 * 1024,
+		);
+		$matches = array();
+		if (preg_match('/^([0-9]+)([' . implode('', array_keys($postfixes)) . '])$/', $casted, $matches)) {
+			$casted = $matches[1] * $postfixes[$matches[2]];
+		}
 		return $casted;
 	}
 }
